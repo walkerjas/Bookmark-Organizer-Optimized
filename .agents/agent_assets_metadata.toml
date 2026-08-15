@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "2pJk0Vd4KD_kHskM6LzoM"
+uri = "file://artifacts/browser-extension/dist/markbase-extension.zip"
+type = "unspecified"
+title = "Markbase Extension — ghost icon"

@@ -1,0 +1,556 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Bookmark Manager API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: bookmarks
+    description: Bookmark operations
+  - name: collections
+    description: Collection operations
+  - name: tags
+    description: Tag operations
+  - name: imports
+    description: Browser bookmark import operations
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /bookmarks:
+    get:
+      operationId: listBookmarks
+      tags: [bookmarks]
+      summary: List all bookmarks
+      parameters:
+        - name: collectionId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: tagId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: search
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: pinned
+          in: query
+          schema:
+            type: ["boolean", "null"]
+      responses:
+        "200":
+          description: List of bookmarks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Bookmark"
+    post:
+      operationId: createBookmark
+      tags: [bookmarks]
+      summary: Create a bookmark
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookmarkInput"
+      responses:
+        "201":
+          description: Created bookmark
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bookmark"
+
+  /bookmarks/{id}:
+    get:
+      operationId: getBookmark
+      tags: [bookmarks]
+      summary: Get a single bookmark
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Bookmark
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bookmark"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateBookmark
+      tags: [bookmarks]
+      summary: Update a bookmark
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookmarkUpdate"
+      responses:
+        "200":
+          description: Updated bookmark
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bookmark"
+    delete:
+      operationId: deleteBookmark
+      tags: [bookmarks]
+      summary: Delete a bookmark
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /bookmarks/{id}/pin:
+    patch:
+      operationId: toggleBookmarkPin
+      tags: [bookmarks]
+      summary: Toggle pinned state
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated bookmark
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bookmark"
+
+  /bookmarks/stats:
+    get:
+      operationId: getBookmarkStats
+      tags: [bookmarks]
+      summary: Bookmark dashboard stats
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookmarkStats"
+
+  /bookmarks/recent:
+    get:
+      operationId: getRecentBookmarks
+      tags: [bookmarks]
+      summary: Get recently added bookmarks
+      responses:
+        "200":
+          description: Recent bookmarks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Bookmark"
+
+  /collections:
+    get:
+      operationId: listCollections
+      tags: [collections]
+      summary: List all collections
+      responses:
+        "200":
+          description: List of collections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Collection"
+    post:
+      operationId: createCollection
+      tags: [collections]
+      summary: Create a collection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CollectionInput"
+      responses:
+        "201":
+          description: Created collection
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Collection"
+
+  /collections/{id}:
+    patch:
+      operationId: updateCollection
+      tags: [collections]
+      summary: Update a collection
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CollectionUpdate"
+      responses:
+        "200":
+          description: Updated collection
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Collection"
+    delete:
+      operationId: deleteCollection
+      tags: [collections]
+      summary: Delete a collection
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /tags:
+    get:
+      operationId: listTags
+      tags: [tags]
+      summary: List all tags
+      responses:
+        "200":
+          description: List of tags
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tag"
+    post:
+      operationId: createTag
+      tags: [tags]
+      summary: Create a tag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TagInput"
+      responses:
+        "201":
+          description: Created tag
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tag"
+
+  /tags/{id}:
+    patch:
+      operationId: updateTag
+      tags: [tags]
+      summary: Update a tag
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TagUpdate"
+      responses:
+        "200":
+          description: Updated tag
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tag"
+    delete:
+      operationId: deleteTag
+      tags: [tags]
+      summary: Delete a tag
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /imports:
+    post:
+      operationId: importBookmarks
+      tags: [imports]
+      summary: Import bookmarks from browser HTML export
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImportInput"
+      responses:
+        "200":
+          description: Import result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportResult"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    Bookmark:
+      type: object
+      required: [id, url, title, createdAt, pinned]
+      properties:
+        id:
+          type: integer
+        url:
+          type: string
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        favicon:
+          type: ["string", "null"]
+        previewImage:
+          type: ["string", "null"]
+        collectionId:
+          type: ["integer", "null"]
+        pinned:
+          type: boolean
+        sortOrder:
+          type: integer
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tag"
+
+    BookmarkInput:
+      type: object
+      required: [url, title]
+      properties:
+        url:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        favicon:
+          type: string
+        previewImage:
+          type: string
+        collectionId:
+          type: ["integer", "null"]
+        pinned:
+          type: boolean
+        tagIds:
+          type: array
+          items:
+            type: integer
+
+    BookmarkUpdate:
+      type: object
+      properties:
+        url:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        favicon:
+          type: string
+        previewImage:
+          type: string
+        collectionId:
+          type: ["integer", "null"]
+        pinned:
+          type: boolean
+        sortOrder:
+          type: integer
+        tagIds:
+          type: array
+          items:
+            type: integer
+
+    BookmarkStats:
+      type: object
+      required: [total, pinned, collections, tags]
+      properties:
+        total:
+          type: integer
+        pinned:
+          type: integer
+        collections:
+          type: integer
+        tags:
+          type: integer
+        recentCount:
+          type: integer
+
+    Collection:
+      type: object
+      required: [id, name, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        color:
+          type: ["string", "null"]
+        icon:
+          type: ["string", "null"]
+        parentId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+        bookmarkCount:
+          type: integer
+
+    CollectionInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        color:
+          type: string
+        icon:
+          type: string
+        parentId:
+          type: ["integer", "null"]
+
+    CollectionUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        color:
+          type: string
+        icon:
+          type: string
+        parentId:
+          type: ["integer", "null"]
+
+    Tag:
+      type: object
+      required: [id, name, sortOrder]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        color:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
+
+    TagInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        color:
+          type: string
+
+    TagUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        color:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
+
+    ImportInput:
+      type: object
+      required: [html, collectionId]
+      properties:
+        html:
+          type: string
+          description: Raw HTML content from Firefox/Chrome bookmark export
+        collectionId:
+          type: ["integer", "null"]
+          description: Optional collection to import into
+
+    ImportResult:
+      type: object
+      required: [imported, skipped, errors]
+      properties:
+        imported:
+          type: integer
+        skipped:
+          type: integer
+        errors:
+          type: integer
+        bookmarks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Bookmark"

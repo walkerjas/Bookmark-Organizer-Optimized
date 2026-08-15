@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+artifacts/*/dist/
+artifacts/*/node_modules/
+
+# Secrets / env
+.env
+*.local.env
+.env.*
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Rust static-server binary (not part of this repo)
+/static-server-rs
+
+# Agent/launcher runtime artifacts
+/start-bookmark-opt.sh
+/tmp/
